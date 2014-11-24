@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html ng-app="read">
+<head>
+    <title>read</title>
+    <script src="winstate.js"></script>
+    <script src="live-reload.js"></script>
+    <script type="text/javascript">
+        require('nw.gui').Window.get().showDevTools();
+    </script>
+
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-sanitize.min.js"></script>
+    <script src="app.js"></script>
+    <script src="services/SettingsService.js"></script>
+    <script src="services/SSHService.js"></script>
+    <script src="controllers/MainController.js"></script>
+    <script src="components/File/FileController.js"></script>
+    <script src="components/File/FileDirective.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="style/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="style/reset.css"/>
+    <link rel="stylesheet" type="text/css" href="style/app.css"/>
+    <link rel="stylesheet" type="text/css" href="style/styles.css"/>
+    <link rel="stylesheet" type="text/css" href="fonts/RobotoRegular/stylesheet.css"/>
+    <link rel="stylesheet" type="text/css" href="components/File/File.css"/>
+
+</head>
+<body ng-controller="MainController" ng-class="{'sidebarOpen': sidebarOpen}">
+    <header>
+      <menu-button ng-class="{'open': sidebarOpen}" ng-click="sidebarOpen=!sidebarOpen;"><i class="icon-database"></i></menu-button>
+      <h1><i class="icon-eye"></i>read</h1>
+    </header>
+
+    <sidebar>
+        <sidebar-body ng-mousedown="selectFile($event)">
+            <item ng-repeat="file in files" ng-class="{selected: file.selected}" ng-mousedown="selectFile($event, file)" ng-dblclick="openFile(file)" ng-mouseup="sidebarMouseUp($event)">
+                {{file.title}}
+                <hostname>{{file.connectionOptions.host}}</hostname>
+            </item>
+        </sidebar-body>
+        <footer>
+            <footer-item><i class="icon-file-add" ng-click="showPopup()"></i></footer-item>
+            <footer-item ng-click="deleteConfirm()" class="disabled" ng-class="{active: selectedFile}"><i class="icon-file-broken"></i></footer-item>
+            <footer-item ng-click="editFile()" class="disabled" ng-class="{active: selectedFile}"><i class="icon-file-settings"></i></footer-item>
+        </footer>
+    </sidebar>
+    <content>
+        <tab-header>
+            <ul>
+                <li ng-repeat="tab in tabs"
+                    ng-class="{active:tab.active}"
+                    ng-click="onClickTab(tab)">{{tab.title}}<i ng-click="closeFile(tab)" class="icon-cancel-circled"></i></li>
+            </ul>
+        </tab-header>
+        <tab-contents>
+          <file ng-repeat="tab in tabs" ng-show="tab.active" options="tab.connectionOptions"></file>
+        </tab-contents>
+    </content>
+
+    <file-popup ng-class="{show: showPopup_}">
+        <h1>Server Management</h1>
+        <div class="input-group">
+            <label>Title</label>
+            <input ng-model="draft.title">
+        </div>
+        <div class="input-group">
+            <label>Host</label>
+            <input ng-model="draft.host" placeholder="localhost">
+        </div>
+        <div class="input-group">
+            <label>Port</label>
+            <input ng-model="draft.port" placeholder="22">
+        </div>
+        <div class="input-group">
+            <label>Username</label>
+            <input ng-model="draft.username">
+        </div>
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" ng-model="draft.password">
+        </div>
+        <div class="input-group">
+            <label>Filename</label>
+            <input ng-model="draft.filename">
+        </div>
+        <div class="input-group">
+            <label>Initial lines</label>
+            <input ng-model="draft.lines" placeholder="400">
+        </div>
+        <action ng-click="popupAction()">Ekle</action>
+        <action ng-click="popupDispose()">Kapat</action>
+    </file-popup>
+    <ui-locker ng-class="{show: showPopup_}"></ui-locker>
+</body>
+</html>
